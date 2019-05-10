@@ -8,7 +8,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <syslog.h>
-#include <limits.h>
+#include <linux/limits.h>
+
+
 
 int main()
 {
@@ -45,7 +47,7 @@ int main()
         if (timeinfo->tm_sec == 0)
         {
             char tabfile[PATH_MAX];
-            sprintf(tabfile,"%s/crontab.txt",cwd);
+            sprintf(tabfile,"%s/crontab.data",cwd);
             FILE *tab = fopen(tabfile, "r");
             if (tab != NULL)
             {

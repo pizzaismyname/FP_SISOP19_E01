@@ -1,4 +1,0 @@
-* * *  *             *           touch /mnt/e/sisop/aa.cdef
-* * *  *          *              rm /mnt/e/sisop/*.mp4
-* * *  *      *                  rm /mnt/e/sisop/*.mkv
-* * *  *             *           rm /mnt/e/sisop/*.gz
