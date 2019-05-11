@@ -10,12 +10,10 @@
 #include <syslog.h>
 #include <linux/limits.h>
 
-
-
 int main()
 {
     char cwd[PATH_MAX];
-    getcwd(cwd,sizeof(cwd));
+    getcwd(cwd, sizeof(cwd));
 
     pid_t pid, sid;
 
@@ -47,7 +45,7 @@ int main()
         if (timeinfo->tm_sec == 0)
         {
             char tabfile[PATH_MAX];
-            sprintf(tabfile,"%s/crontab.data",cwd);
+            sprintf(tabfile, "%s/crontab.data", cwd);
             FILE *tab = fopen(tabfile, "r");
             if (tab != NULL)
             {
@@ -55,7 +53,8 @@ int main()
                 while (EOF != fscanf(tab, "%2s %2s %2s %2s %2s %100[^\r\n]", &i, &h, &d, &m, &dw, &cmd))
                 {
                     //Clears out \n and \r
-                    if (fgetc(tab) != '\n') fgetc(tab);
+                    if (fgetc(tab) != '\n')
+                        fgetc(tab);
                     if (
                         (strcmp(i, "*") == 0 ? 1 : atoi(i) == timeinfo->tm_min) &&
                         (strcmp(h, "*") == 0 ? 1 : atoi(h) == timeinfo->tm_hour) &&
