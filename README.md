@@ -59,7 +59,7 @@ if (tab != NULL)
 ```
 
 ## Mengeksekusi perintah perbaris
-Jika setiap kolom waktu adalah `*`, maka perintah dapat langsung dijalankan. Jika isi kolom waktu adalah angka `0-9`, maka perintah dijalankan ketika waktu saat ini sesuai dengan angka pada kolom tersebut. Untuk menggantikan `system()`, digunakan `execl("/bin/sh", "sh", "-c", cmd, NULL);` untuk mengeksekusi _command_.
+Jika setiap kolom waktu adalah `*`, maka perintah dapat langsung dijalankan. Jika isi kolom waktu adalah angka `0-9`, maka perintah dijalankan ketika waktu saat ini sesuai dengan angka pada kolom tersebut. Untuk menggantikan `system()`, dibuat _child process_ dengan `fork()`, kemudian digunakan `execl("/bin/sh", "sh", "-c", cmd, NULL);` untuk mengeksekusi _command_.
 ```c
 char i[3], h[3], d[3], m[3], dw[3], cmd[101];
 while (EOF != fscanf(tab, "%2s %2s %2s %2s %2s %100[^\r\n]", &i, &h, &d, &m, &dw, &cmd))
