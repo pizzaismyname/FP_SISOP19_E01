@@ -9,22 +9,6 @@
 #include <errno.h>
 #include <syslog.h>
 #include <linux/limits.h>
-#include <pthread.h>
-
-FILE *tab;
-pthread_t tid[1000];
-
-void *thread(void *arg)
-{
-    //Pengganti system()
-    pid_t f = fork();
-    if (f == 0)
-    {
-        fclose(tab);
-        execl("/bin/sh", "sh", "-c", (char *)arg, NULL);
-        return;
-    }
-}
 
 int main()
 {
@@ -60,14 +44,12 @@ int main()
         time(&rawtime);
         timeinfo = localtime(&rawtime);
 
-        int id = -1;
-
         //Selalu eksekusi di detik ke-0
         if (timeinfo->tm_sec == 0)
         {
             char tabfile[PATH_MAX];
             sprintf(tabfile, "%s/crontab.data", cwd);
-            tab = fopen(tabfile, "r");
+            FILE *tab = fopen(tabfile, "r");
             if (tab != NULL)
             {
                 char i[3], h[3], d[3], m[3], dw[3], cmd[101];
@@ -83,8 +65,13 @@ int main()
                         (strcmp(m, "*") == 0 ? 1 : atoi(m) == (timeinfo->tm_mon + 1)) &&
                         (strcmp(dw, "*") == 0 ? 1 : atoi(dw) == timeinfo->tm_wday))
                     {
-                        //Penggunaan thread
-                        pthread_create(&(tid[++id]), NULL, thread, &cmd);
+                        //Pengganti system()
+                        pid_t f = fork();
+                        if (f == 0)
+                        {
+                            fclose(tab);
+                            execl("/bin/sh", "sh", "-c", cmd, NULL);
+                        }
                     }
                 }
                 fclose(tab);
@@ -92,5 +79,6 @@ int main()
         }
         sleep(1);
     }
+
     exit(EXIT_SUCCESS);
 }
