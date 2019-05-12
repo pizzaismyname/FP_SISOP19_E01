@@ -9,6 +9,22 @@
 #include <errno.h>
 #include <syslog.h>
 #include <linux/limits.h>
+#include <pthread.h>
+
+FILE *tab;
+char cmd[101];
+pthread_t tid[1000];
+
+void *thread()
+{
+    //Pengganti system()
+    pid_t f = fork();
+    if (f == 0)
+    {
+        fclose(tab);
+        execl("/bin/sh", "sh", "-c", cmd, NULL);
+    }
+}
 
 int main()
 {
@@ -16,18 +32,21 @@ int main()
     getcwd(cwd, sizeof(cwd));
 
     pid_t pid, sid;
-
     pid = fork();
     if (pid < 0)
         exit(EXIT_FAILURE);
     if (pid > 0)
         exit(EXIT_SUCCESS);
+
     umask(0);
+
     sid = setsid();
     if (sid < 0)
         exit(EXIT_FAILURE);
+
     if ((chdir("/")) < 0)
         exit(EXIT_FAILURE);
+
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
@@ -41,15 +60,17 @@ int main()
         time(&rawtime);
         timeinfo = localtime(&rawtime);
 
+        int id = -1;
+
         //Selalu eksekusi di detik ke-0
         if (timeinfo->tm_sec == 0)
         {
             char tabfile[PATH_MAX];
             sprintf(tabfile, "%s/crontab.data", cwd);
-            FILE *tab = fopen(tabfile, "r");
+            tab = fopen(tabfile, "r");
             if (tab != NULL)
             {
-                char i[3], h[3], d[3], m[3], dw[3], cmd[101];
+                char i[3], h[3], d[3], m[3], dw[3];
                 while (EOF != fscanf(tab, "%2s %2s %2s %2s %2s %100[^\r\n]", &i, &h, &d, &m, &dw, &cmd))
                 {
                     //Clears out \n and \r
@@ -62,18 +83,19 @@ int main()
                         (strcmp(m, "*") == 0 ? 1 : atoi(m) == (timeinfo->tm_mon + 1)) &&
                         (strcmp(dw, "*") == 0 ? 1 : atoi(dw) == timeinfo->tm_wday))
                     {
-                        //Pengganti system()
-                        pid_t f = fork();
-                        if (f == 0)
-                        {
-                            fclose(tab);
-                            execl("/bin/sh", "sh", "-c", cmd, NULL);
-                        }
+                        //Penggunaan thread
+                        pthread_create(&(tid[++id]), NULL, &thread, NULL);
                     }
                 }
                 fclose(tab);
             }
         }
+
+        for (int i = 0; i < id; i++)
+        {
+            pthread_kill(tid[i], NULL);
+        }
+
         sleep(1);
     }
 

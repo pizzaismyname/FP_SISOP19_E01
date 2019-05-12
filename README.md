@@ -58,7 +58,7 @@ if (tab != NULL)
 }
 ```
 
-## Mengeksekusi perintah perbaris
+## Mengeksekusi perintah-perintah pada file `crontab.data` perbaris
 Jika setiap kolom waktu adalah `*`, maka perintah dapat langsung dijalankan. Jika isi kolom waktu adalah angka `0-9`, maka perintah dijalankan ketika waktu saat ini sesuai dengan angka pada kolom tersebut. Untuk menggantikan `system()`, dibuat _child process_ dengan `fork()`, kemudian digunakan `execl("/bin/sh", "sh", "-c", cmd, NULL);` untuk mengeksekusi _command_.
 ```c
 char i[3], h[3], d[3], m[3], dw[3], cmd[101];
