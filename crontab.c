@@ -93,7 +93,7 @@ int main()
 
         for (int i = 0; i < id; i++)
         {
-            pthread_kill(tid[i], NULL);
+            pthread_kill(tid[i]);
         }
 
         sleep(1);
