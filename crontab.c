@@ -12,17 +12,17 @@
 #include <pthread.h>
 
 FILE *tab;
-char cmd[101];
 pthread_t tid[1000];
 
-void *thread()
+void *thread(void *arg)
 {
     //Pengganti system()
     pid_t f = fork();
     if (f == 0)
     {
         fclose(tab);
-        execl("/bin/sh", "sh", "-c", cmd, NULL);
+        execl("/bin/sh", "sh", "-c", (char *)arg, NULL);
+        return;
     }
 }
 
@@ -70,7 +70,7 @@ int main()
             tab = fopen(tabfile, "r");
             if (tab != NULL)
             {
-                char i[3], h[3], d[3], m[3], dw[3];
+                char i[3], h[3], d[3], m[3], dw[3], cmd[101];
                 while (EOF != fscanf(tab, "%2s %2s %2s %2s %2s %100[^\r\n]", &i, &h, &d, &m, &dw, &cmd))
                 {
                     //Clears out \n and \r
@@ -84,20 +84,13 @@ int main()
                         (strcmp(dw, "*") == 0 ? 1 : atoi(dw) == timeinfo->tm_wday))
                     {
                         //Penggunaan thread
-                        pthread_create(&(tid[++id]), NULL, &thread, NULL);
+                        pthread_create(&(tid[++id]), NULL, thread, &cmd);
                     }
                 }
                 fclose(tab);
             }
         }
-
-        for (int i = 0; i < id; i++)
-        {
-            pthread_kill(tid[i]);
-        }
-
         sleep(1);
     }
-
     exit(EXIT_SUCCESS);
 }
